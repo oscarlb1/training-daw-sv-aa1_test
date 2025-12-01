@@ -17,12 +17,29 @@ const handleFillCountry = _.debounce((ev) => {
     }
   }, 300);
 
+
+
 //
 function validateName(event) {
     const name = event.target.value
     console.log('validate name: ' + name);
 
     return false
+}
+
+// Corregido:- **(2 pto)** El método `validateName` debería validar que: - El campo no está vacío - Que tiene una longitud de > 8
+function validateName(event) {
+    const name = event.target.value.trim();
+    const isValid = name.length > 8; 
+
+    if (isValid) {
+        showElementWithClassName(event.target, 'valid-feedback');
+        hideElementWithClassName(event.target, 'invalid-feedback');
+    } else {
+        showElementWithClassName(event.target, 'invalid-feedback');
+        hideElementWithClassName(event.target, 'valid-feedback');
+    }
+    return isValid;
 }
 
 function validatePassword(event) {
@@ -35,12 +52,47 @@ function validatePassword(event) {
     return false
 }
 
+// Corregida: - **(2 pto)** El método `validatePassword` debería validar que: - (0.25pto) El campo no está vacío - (0.25pto) Que tiene una longitud de > 8 - (1pto) Que cumple con el regex indicado
+function validatePassword(event) {
+    const password = event.target.value;
+    const passwordRegex = /(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[^A-Za-z0-9]).{9,}/; 
+    const minLength = password.length > 8;
+    const isLongEnoughAndMeetsRegex = passwordRegex.test(password);
+
+    const isValid = minLength && isLongEnoughAndMeetsRegex; 
+
+    if (isValid) {
+        showElementWithClassName(event.target, 'valid-feedback');
+        hideElementWithClassName(event.target, 'invalid-feedback');
+    } else {
+        showElementWithClassName(event.target, 'invalid-feedback');
+        hideElementWithClassName(event.target, 'valid-feedback');
+    }
+    return isValid;
+}
+
 function validateEmail(event) {
     const email = event.target.value
 
     return false
 }
 
+// Corregida: - **(2 pto)** El método `validateEmail` debería validar que: - El campo no está vacío - El campo es un mail válido (* buscar regex para validar)
+function validateEmail(event) {
+    const email = event.target.value.trim();
+    const emailRegex = /\S+@\S/; 
+
+    const isValid = email != "" && emailRegex.test(email);
+
+    if (isValid) {
+        showElementWithClassName(event.target, 'valid-feedback');
+        hideElementWithClassName(event.target, 'invalid-feedback');
+    } else {
+        showElementWithClassName(event.target, 'invalid-feedback');
+        hideElementWithClassName(event.target, 'valid-feedback');
+    }
+    return isValid;
+}
 
 // general register
 function register(event) {
@@ -65,6 +117,33 @@ function register(event) {
     return false;
 }
 
+// Corregido: - **(2 pto)** El método `register`, debe realizar el fetch al API si y sólo si: - se cumplen las validaciones anteriores (name, email y contry) 
+// - el usuario ha seleccionado un gènero - el usuario ha marcado el checkbox "I confirm that all data are correct"
+// function register(event) {
+//     const isNameValid = validateName();
+//     const isEmailValid = validateEmail();
+
+//     const dataMarked = document.getElementById('invalidCheck').value != 0
+
+//     if (!isNameValid || !isEmailValid ||  !dataMarked ) {
+//         return;
+//     } else {
+//         // then, send a POST to localhost:3000/register with all the data in the body as a JSON
+//         fetch('http://localhost:3000/', {
+//             method: 'POST',
+//             body: JSON.stringify({
+//                 'name': 'sample'
+//             }),
+//             headers: {
+//                 'Content-type': 'application/json'
+//             },
+//         })
+//         event.preventDefault();
+//         return false;
+//     }
+// }
+
+
 // utility functions
 function showElementWithClassName(node, className) {
     node.parentNode.getElementsByClassName(className)[0].style.display = 'initial'
@@ -72,6 +151,7 @@ function showElementWithClassName(node, className) {
 function hideElementWithClassName(node, className) {
     node.parentNode.getElementsByClassName(className)[0].style.display = 'none'
 }
+
 function selectCountry(event) {
     console.log(event);
     document.forms[0].country.value = event.target.innerText
